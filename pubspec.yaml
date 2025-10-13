@@ -1,0 +1,55 @@
+name: nucleo_casa_decor_android
+description: "A new Flutter project."
+
+publish_to: 'none' 
+
+version: 1.0.3+1
+
+environment:
+  sdk: ^3.7.0
+
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
+  cupertino_icons: ^1.0.8
+  intl: ^0.20.2
+  image_picker: ^1.2.0
+  get: ^4.7.2
+  shared_preferences: ^2.5.3
+  mask_text_input_formatter: ^2.9.0
+  google_fonts: ^6.3.2
+  file_picker: ^10.3.3
+  flutter_riverpod: ^3.0.3
+  cpf_cnpj_validator: ^2.0.0
+  pdf: ^3.11.3
+  printing: ^5.14.2
+  animations: ^2.1.0
+  animated_text_kit: ^4.3.0
+  flutter_staggered_animations: ^1.1.1
+  rxdart: ^0.28.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+  # Adicione este pacote para gerar ícones
+  flutter_launcher_icons: ^0.13.1
+
+flutter:
+
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+
+# Configuração para gerar os ícones do app
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: assets/images/icon.jpg
+  remove_alpha_ios: true

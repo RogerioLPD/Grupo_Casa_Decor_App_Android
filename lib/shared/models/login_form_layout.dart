@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nucleo_casa_decor_android/shared/screens/register_especificador.dart';
 
 class LoginLayoutResponsivo extends StatefulWidget {
   final GlobalKey<FormState> formKey;
@@ -42,26 +43,17 @@ class _LoginLayoutResponsivoState extends State<LoginLayoutResponsivo>
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    _fadeController = AnimationController(
-      duration: const Duration(milliseconds: 600),
-      vsync: this,
-    );
+    _fadeController = AnimationController(duration: const Duration(milliseconds: 600), vsync: this);
 
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.3),
       end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _slideController,
-      curve: Curves.easeOutCubic,
-    ));
+    ).animate(CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic));
 
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _fadeController,
-      curve: Curves.easeOut,
-    ));
+    ).animate(CurvedAnimation(parent: _fadeController, curve: Curves.easeOut));
 
     _fadeController.forward();
     Future.delayed(const Duration(milliseconds: 200), () {
@@ -80,9 +72,7 @@ class _LoginLayoutResponsivoState extends State<LoginLayoutResponsivo>
   Widget build(BuildContext context) {
     final isDesktop = MediaQuery.of(context).size.width > 800;
 
-    return Scaffold(
-      body: isDesktop ? _buildDesktopLayout() : _buildMobileLayout(),
-    );
+    return Scaffold(body: isDesktop ? _buildDesktopLayout() : _buildMobileLayout());
   }
 
   Widget _buildDesktopLayout() {
@@ -129,9 +119,7 @@ class _LoginLayoutResponsivoState extends State<LoginLayoutResponsivo>
           ],
         ),
       ),
-      child: SafeArea(
-        child: _buildForm(),
-      ),
+      child: SafeArea(child: _buildForm()),
     );
   }
 
@@ -167,9 +155,7 @@ class _LoginLayoutResponsivoState extends State<LoginLayoutResponsivo>
                       // Conteúdo do card
                       Card(
                         elevation: 8,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                         color: Colors.white.withAlpha(25),
                         child: Padding(
                           padding: const EdgeInsets.all(32),
@@ -180,9 +166,9 @@ class _LoginLayoutResponsivoState extends State<LoginLayoutResponsivo>
                               Text(
                                 '',
                                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.grey,
-                                    ),
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey,
+                                ),
                               ),
                               const SizedBox(height: 32),
                               ...?widget.extraFields,
@@ -203,14 +189,13 @@ class _LoginLayoutResponsivoState extends State<LoginLayoutResponsivo>
                                     color: Theme.of(context).colorScheme.onSurface,
                                   ),
                                 ),
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.onSurface,
-                                ),
+                                style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
                                     return 'Digite seu e-mail';
-                                  } else if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                                      .hasMatch(value)) {
+                                  } else if (!RegExp(
+                                    r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                                  ).hasMatch(value)) {
                                     return 'Digite um e-mail válido';
                                   }
                                   return null;
@@ -244,9 +229,7 @@ class _LoginLayoutResponsivoState extends State<LoginLayoutResponsivo>
                                     color: Theme.of(context).colorScheme.onSurface,
                                   ),
                                 ),
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.onSurface,
-                                ),
+                                style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
                                     return 'Digite sua senha';
@@ -271,16 +254,20 @@ class _LoginLayoutResponsivoState extends State<LoginLayoutResponsivo>
                                 ),
                               ),
                               const SizedBox(height: 24),
-                              /*TextButton(
-                                onPressed: widget.onVoltar,
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const RegisterEspecificador(),
+                                    ),
+                                  );
+                                },
                                 child: const Text(
-                                  'VOLTAR',
-                                  style: TextStyle(
-                                    color: Colors.grey,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                                  'Não tem uma conta? Cadastre-se',
+                                  style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
                                 ),
-                              ),*/
+                              ),
                             ],
                           ),
                         ),

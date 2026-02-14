@@ -77,6 +77,8 @@ class _CompanyRegistrationScreenState extends State<CompanyRegistrationScreen>
     'Madereiras',
     'Materiais Elétricos',
     'Paisagismo',
+    'Impermeabilização',
+    'Pisos e blocos de concreto',
   ];
 
   final EnterpriseController _enterpriseController = EnterpriseController();
@@ -94,6 +96,9 @@ class _CompanyRegistrationScreenState extends State<CompanyRegistrationScreen>
   @override
   void initState() {
     super.initState();
+    _categories.sort(
+      (a, b) => a.toLowerCase().compareTo(b.toLowerCase()),
+    ); // 🔥 ordena ignorando maiúsculas
 
     // 🔹 Inicializa categoria selecionada
     _selectedCategory = _categories.first;
@@ -291,7 +296,7 @@ class _CompanyRegistrationScreenState extends State<CompanyRegistrationScreen>
               const SizedBox(width: 32),
               // Lista com rolagem própria
               Expanded(
-                flex: 2,
+                flex: 1,
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxHeight: 800),
                   child: Column(
@@ -467,62 +472,77 @@ class _CompanyRegistrationScreenState extends State<CompanyRegistrationScreen>
             const SizedBox(height: 16),
 
             // Linha com Cidade e Estado usando Dropdown
-            Row(
-              children: [
-                Flexible(
-                  flex: 2,
-                  child: DropdownButtonFormField<String>(
-                    isExpanded: true, // 🔹 evita que o texto corte
-                    decoration: const InputDecoration(
-                      labelText: 'Cidade',
-                      prefixIcon: Icon(Icons.location_city_rounded),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final isWide = constraints.maxWidth > 600;
+
+                return Wrap(
+                  spacing: 16,
+                  runSpacing: 16,
+                  children: [
+                    SizedBox(
+                      width: isWide ? (constraints.maxWidth / 2) - 8 : double.infinity,
+                      child: DropdownButtonFormField<String>(
+                        isExpanded: true,
+                        decoration: InputDecoration(
+                          labelText: 'Cidade',
+                          prefixIcon: const Icon(Icons.location_city_rounded),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          filled: true,
+                          fillColor: Theme.of(context).colorScheme.surface,
+                        ),
+                        value: cidadeSelecionada,
+                        items:
+                            cidades.map<DropdownMenuItem<String>>((cidade) {
+                              return DropdownMenuItem<String>(
+                                value: cidade['nome'],
+                                child: Text(cidade['nome'], overflow: TextOverflow.ellipsis),
+                              );
+                            }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            cidadeSelecionada = value;
+                            _cityController.text = value ?? '';
+                          });
+                        },
+                      ),
                     ),
-                    value: cidadeSelecionada,
-                    items:
-                        cidades.map<DropdownMenuItem<String>>((cidade) {
-                          return DropdownMenuItem<String>(
-                            value: cidade['nome'],
-                            child: Text(cidade['nome']),
-                          );
-                        }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        cidadeSelecionada = value;
-                        _cityController.text = value ?? '';
-                      });
-                    },
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Flexible(
-                  child: DropdownButtonFormField<String>(
-                    isExpanded: true, // 🔹 evita corte do texto
-                    decoration: const InputDecoration(
-                      labelText: 'Estado',
-                      prefixIcon: Icon(Icons.map_rounded),
+
+                    SizedBox(
+                      width: isWide ? (constraints.maxWidth / 2) - 8 : double.infinity,
+                      child: DropdownButtonFormField<String>(
+                        isExpanded: true,
+                        decoration: InputDecoration(
+                          labelText: 'Estado',
+                          prefixIcon: const Icon(Icons.map_rounded),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          filled: true,
+                          fillColor: Theme.of(context).colorScheme.surface,
+                        ),
+                        value: estadoSelecionado,
+                        items:
+                            estados.map<DropdownMenuItem<String>>((estado) {
+                              return DropdownMenuItem<String>(
+                                value: estado['sigla'],
+                                child: Text(estado['nome'], overflow: TextOverflow.ellipsis),
+                              );
+                            }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            estadoSelecionado = value;
+                            _stateController.text = value ?? '';
+                            cidadeSelecionada = null;
+                            cidades.clear();
+                          });
+                          if (value != null) {
+                            _fetchCidades(value);
+                          }
+                        },
+                      ),
                     ),
-                    value: estadoSelecionado,
-                    items:
-                        estados.map<DropdownMenuItem<String>>((estado) {
-                          return DropdownMenuItem<String>(
-                            value: estado['sigla'],
-                            child: Text(estado['nome']),
-                          );
-                        }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        estadoSelecionado = value;
-                        _stateController.text = value ?? '';
-                        cidadeSelecionada = null;
-                        cidades.clear();
-                      });
-                      if (value != null) {
-                        _fetchCidades(value);
-                      }
-                    },
-                  ),
-                ),
-              ],
+                  ],
+                );
+              },
             ),
 
             const SizedBox(height: 16),
@@ -604,12 +624,21 @@ class _CompanyRegistrationScreenState extends State<CompanyRegistrationScreen>
   }
 
   Widget _buildActiveSwitch() {
-    return Row(
+    final theme = Theme.of(context);
+
+    return Wrap(
+      alignment: WrapAlignment.spaceBetween,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      runSpacing: 8,
       children: [
-        Icon(Icons.toggle_on_rounded, color: Theme.of(context).colorScheme.primary),
-        const SizedBox(width: 12),
-        Text('Empresa Ativa', style: Theme.of(context).textTheme.bodyLarge),
-        const Spacer(),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.toggle_on_rounded, color: theme.colorScheme.primary),
+            const SizedBox(width: 8),
+            Text('Empresa Ativa', style: theme.textTheme.bodyLarge),
+          ],
+        ),
         Switch(
           value: _isActive,
           onChanged: (value) {
@@ -802,21 +831,22 @@ class CompanyCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              /// IMAGEM
               ClipRRect(
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(16),
                   topRight: Radius.circular(16),
                 ),
-                child: Container(
+                child: SizedBox(
                   height: 180,
                   width: double.infinity,
-                  decoration: BoxDecoration(color: theme.colorScheme.surfaceContainerHighest),
                   child: Image.network(
                     company.imageUrl,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
                       return Container(
                         color: theme.colorScheme.surfaceContainerHighest,
+                        alignment: Alignment.center,
                         child: Icon(
                           Icons.business,
                           size: 64,
@@ -827,62 +857,79 @@ class CompanyCard extends StatelessWidget {
                   ),
                 ),
               ),
+
+              /// CONTEÚDO
               Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    /// NOME + RATING
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
                           child: Text(
                             company.name,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                             style: theme.textTheme.titleLarge?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.secondary.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.star, size: 16, color: theme.colorScheme.secondary),
-                              const SizedBox(width: 4),
-                              Text(
-                                company.rating.toString(),
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: theme.colorScheme.secondary,
-                                  fontWeight: FontWeight.w600,
+                        const SizedBox(width: 8),
+                        Flexible(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.secondary.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.star, size: 16, color: theme.colorScheme.secondary),
+                                const SizedBox(width: 4),
+                                Text(
+                                  company.rating.toString(),
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: theme.colorScheme.secondary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ],
                     ),
+
                     const SizedBox(height: 8),
+
+                    /// DESCRIÇÃO
                     Text(
                       company.description,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                         height: 1.4,
                       ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
                     ),
+
                     const SizedBox(height: 12),
-                    Row(
+
+                    /// TAG VERIFICADO (AGORA À PROVA DE OVERFLOW)
+                    Wrap(
+                      spacing: 6,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         Icon(Icons.verified, size: 16, color: theme.colorScheme.secondary),
-                        const SizedBox(width: 4),
                         Text(
                           'Parceiro Verificado',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: theme.colorScheme.secondary,
                             fontWeight: FontWeight.w500,

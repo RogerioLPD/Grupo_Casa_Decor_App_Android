@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Casa Decor',
+      title: 'Grupo Casa Decor',
       theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: ThemeMode.system,

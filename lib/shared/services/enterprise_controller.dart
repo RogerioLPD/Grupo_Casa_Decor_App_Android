@@ -54,14 +54,31 @@ class EnterpriseController {
         final companies =
             jsonData.map((jsonItem) {
               final enterpriseItem = EnterpriseItem.fromJson(jsonItem);
+
+              // Monta telefone (prioriza telefone, senão celular)
+              final phone =
+                  enterpriseItem.telephone?.isNotEmpty == true
+                      ? enterpriseItem.telephone
+                      : enterpriseItem.cellphone;
+
+              // Monta endereço completo
+              final address = [
+                enterpriseItem.address,
+                enterpriseItem.number,
+                enterpriseItem.neighborhood,
+                enterpriseItem.city,
+                enterpriseItem.state,
+              ].where((e) => e != null && e.toString().isNotEmpty).join(', ');
+
               return Company(
-                id:
-                    (enterpriseItem.id ?? 0)
-                        .toString(), // Usa o id numérico vindo da API convertido para string
+                id: (enterpriseItem.id ?? 0).toString(),
                 name: enterpriseItem.name ?? '',
-                description: enterpriseItem.city ?? '',
+                description: enterpriseItem.segment ?? '',
                 imageUrl: enterpriseItem.photo ?? '',
                 rating: 4.5,
+                phone: phone,
+                address: address,
+                city: enterpriseItem.city?.trim() ?? '', // 👈 ESSENCIAL
               );
             }).toList();
 

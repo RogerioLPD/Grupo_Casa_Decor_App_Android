@@ -83,29 +83,92 @@ class _RegisterEspecificadorState extends State<RegisterEspecificador>
     super.dispose();
   }
 
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // 🔴 Ícone
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.error_outline, color: Colors.red, size: 32),
+                ),
+
+                const SizedBox(height: 16),
+
+                // 🔤 Título
+                const Text(
+                  "Erro no cadastro",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+
+                const SizedBox(height: 12),
+
+                // 📄 Mensagem formatada
+                Text(
+                  message,
+                  textAlign: TextAlign.left,
+                  style: const TextStyle(fontSize: 14, height: 1.4),
+                ),
+
+                const SizedBox(height: 20),
+
+                // 🔘 Botão
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: const Text("Entendi"),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
       setState(() => isLoading = true);
 
-      final success = await controller.createSpecified(
+      final result = await controller.createSpecified(
         name: _nomeController.text.trim(),
         email: _emailController.text.trim(),
         password: _senhaController.text.trim(),
-        cpf: _cpfCnpjController.text.trim(), // mantém mascarado como antes
+        cpf: _cpfCnpjController.text.trim(),
         bytes: Uint8List(0),
       );
 
       setState(() => isLoading = false);
 
-      if (success) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Cadastro realizado com sucesso!')));
+      if (result["success"]) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Cadastro realizado com sucesso!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
         Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false);
       } else {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Erro ao cadastrar. Verifique os dados.')));
+        _showErrorDialog(result["message"] ?? "Erro ao cadastrar");
       }
     }
   }

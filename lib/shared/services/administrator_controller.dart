@@ -53,15 +53,11 @@ class AdministradorController {
       "numero": numero,
       "bairro": bairro,
       "cidade": cidade,
-      "estado": estado
+      "estado": estado,
     };
 
     try {
-      var response = await http.post(
-        url,
-        headers: headers,
-        body: jsonEncode(body),
-      );
+      var response = await http.post(url, headers: headers, body: jsonEncode(body));
 
       if (kDebugMode) {
         print('Status: ${response.statusCode}');
@@ -107,11 +103,7 @@ class AdministradorController {
     };
 
     try {
-      var response = await http.post(
-        url,
-        headers: headers,
-        body: jsonEncode(body),
-      );
+      var response = await http.post(url, headers: headers, body: jsonEncode(body));
 
       if (kDebugMode) {
         print('Status: ${response.statusCode}');
@@ -126,7 +118,7 @@ class AdministradorController {
   }
 
   // Criar especificador (sem alteração)
-  Future createSpecified({
+  Future<Map<String, dynamic>> createSpecified({
     String? name,
     String? email,
     String? password,
@@ -135,31 +127,49 @@ class AdministradorController {
   }) async {
     var url = Uri.parse("https://apicasadecor.com/api/cadastro-especificador/");
 
-    Map<String, dynamic> body = {
-      "nome": name,
-      "email": email,
-      "password": password,
-      "cpf": cpf,
-    };
+    Map<String, dynamic> body = {"nome": name, "email": email, "password": password, "cpf": cpf};
 
-    // Se quiser testar envio da foto mesmo sendo readOnly:
     if (bytes != null && bytes.isNotEmpty) {
-      String image = base64.encode(bytes);
-      body["foto"] = image;
+      body["foto"] = base64.encode(bytes);
     }
 
     try {
       var response = await http.post(url, body: body);
+
+      if (kDebugMode) {
+        print('Status: ${response.statusCode}');
+        print('Body: ${response.body}');
+      }
+
       if (response.statusCode == 201) {
-        if (kDebugMode) print(response.body);
-        return true;
+        return {"success": true, "message": "Cadastro realizado com sucesso"};
       } else {
-        if (kDebugMode) print('Erro ${response.statusCode}: ${response.body}');
-        return false;
+        // 🔥 aqui pega erro da API
+        var data = jsonDecode(response.body);
+
+        String errorMessage = "";
+
+        data.forEach((key, value) {
+          String field = key.toString();
+
+          // 🔥 traduzindo campos (opcional e profissional)
+          if (field == "email") field = "E-mail";
+          if (field == "cpf") field = "CPF";
+          if (field == "password") field = "Senha";
+          if (field == "nome") field = "Nome";
+
+          // 🔥 monta mensagem bonita
+          if (value is List) {
+            errorMessage += "• $field: ${value.join(", ")}\n";
+          } else {
+            errorMessage += "• $field: $value\n";
+          }
+        });
+
+        return {"success": false, "message": errorMessage.trim()};
       }
     } catch (e) {
-      log(e.toString());
-      return false;
+      return {"success": false, "message": "Erro de conexão"};
     }
   }
 
@@ -221,9 +231,7 @@ class AdministradorController {
     }
 
     var url = Uri.parse("https://apicasadecor.com/api/especificador/editar/$id/");
-    Map<String, String> headers = {
-      'Authorization': "Token $token",
-    };
+    Map<String, String> headers = {'Authorization': "Token $token"};
 
     Map<String, dynamic> body = {
       "seguimento": seguimento,
@@ -266,9 +274,7 @@ class AdministradorController {
     }
 
     var url = Uri.parse("https://apicasadecor.com/api/especificador/");
-    Map<String, String> headers = {
-      'Authorization': "Token $token",
-    };
+    Map<String, String> headers = {'Authorization': "Token $token"};
 
     url = url.replace(queryParameters: {'cpf': cpfCnpj});
 
@@ -301,9 +307,7 @@ class AdministradorController {
     }
 
     var url = Uri.parse("https://apicasadecor.com/api/usuario/$id/");
-    Map<String, String> headers = {
-      'Authorization': token!.trim(),
-    };
+    Map<String, String> headers = {'Authorization': token!.trim()};
 
     try {
       var response = await http.delete(url, headers: headers);

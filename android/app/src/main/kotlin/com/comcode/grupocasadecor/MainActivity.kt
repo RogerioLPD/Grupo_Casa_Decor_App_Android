@@ -1,4 +1,4 @@
-package com.example.tem_app
+package com.comcode.grupocasadecor
 
 import io.flutter.embedding.android.FlutterActivity
 

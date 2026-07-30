@@ -4,6 +4,7 @@
 *.pyc
 *.swp
 .DS_Store
+**/.DS_Store
 .atom/
 .build/
 .buildlog/
@@ -32,6 +33,7 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
+.firebase/
 
 # Symbolication related
 app.*.symbols
@@ -43,6 +45,19 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+android/key.properties
+android/local.properties
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+macos/Flutter/GeneratedPluginRegistrant.swift
 
 # FVM Version Cache
 .fvm/
+
+# Certificates and local secrets
+*.pem
+*.p12
+*.jks
+*.keystore
+*.env
+*.env.*
